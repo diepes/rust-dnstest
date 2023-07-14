@@ -4,6 +4,7 @@ use crate::{
     message::Message,
 };
 use rand::Rng;
+use std::time;
 
 mod cli;
 mod dns_types;
@@ -21,8 +22,11 @@ fn main() {
     } = AppArgs::parse().unwrap();
     let query_id = rand::thread_rng().gen();
     let msg = Message::new_query(query_id, name, record_type).unwrap();
+    let timer = time::Instant::now();
     let (resp, len) = io::send_req(msg, resolver, VERBOSE).unwrap();
-    if let Err(e) = io::print_resp(resp, len, query_id, VERBOSE) {
+    if let Err(e) = io::print_resp(resp, len, query_id, resolver, VERBOSE) {
         println!("Error: {e}");
     }
+    let duration = timer.elapsed().as_millis();
+    println!(" time: {} ms", duration);
 }

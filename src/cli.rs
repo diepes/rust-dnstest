@@ -14,7 +14,7 @@ USAGE:
 FLAGS:
   -h, --help                Prints help information
 OPTIONS:
-  -t, --record-type TYPE    Choose the DNS record type (currently only supports A, CNAME, SOA and AAAA)
+  -t, --record-type TYPE    Choose the DNS record type (supports A, CNAME, SOA and AAAA) (default A)
   -r, --resolver IP         Which DNS resolver to query (default is 1.1.1.1:53)
 ARGS:
   NAME A domain name to look up. Remember, these must be ASCII.
@@ -38,17 +38,10 @@ impl AppArgs {
             std::process::exit(0);
         }
 
-        let record_type = match pargs
+        let record_type = pargs
             .opt_value_from_str("--record-type")?
             .xor(pargs.opt_value_from_str("-t")?)
-        {
-            Some(rt) => rt,
-            None => {
-                eprintln!("You must supply exactly one of either -t or --record-type");
-                print!("{}", HELP);
-                std::process::exit(1);
-            }
-        };
+            .unwrap_or(RecordType::A);
 
         // I asked some coworkers and they suggested this DNS resolver
         let default_resolver = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(1, 1, 1, 1), 53));
