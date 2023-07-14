@@ -8,28 +8,25 @@ Domain INformation Gatherer, Obviously.
 2. Run ./install.sh (it just does cargo build and copies the program to `/usr/local/bin/dingo`)
 
 ## Examples
+
 ```sh
-$ dingo --record-type A seriouseats.com
+$ dingo seriouseats.com
 
 # Output
-Questions:
-A: seriouseats.com.
-Answers:
-151.101.2.137 (TTL 142)
-151.101.194.137 (TTL 142)
-151.101.130.137 (TTL 142)
-151.101.66.137 (TTL 142)
-```
+Questions: A: seriouseats.com. Resolver: 1.1.1.1:53 Answers: A: 151.101.66.137 (TTL 339)A: 151.101.194.137 (TTL 339)A: 151.101.130.137 (TTL 339)A: 151.101.2.137 (TTL 339) time: 11 ms
 
 ## Usage
-```
+
+```bash
+
 dingo [OPTIONS] --record-type TYPE NAME
 
 FLAGS:
   -h, --help                Prints help information
 OPTIONS:
-  -t, --record-type TYPE    Choose the DNS record type (does not support anywhere near all the record types)
+  -t, --record-type TYPE    Choose the DNS record type (supports A, CNAME, SOA and AAAA) (default A)
   -r, --resolver IP         Which DNS resolver to query (default is 1.1.1.1:53)
 ARGS:
   NAME A domain name to look up. Remember, these must be ASCII.
+
 ```
