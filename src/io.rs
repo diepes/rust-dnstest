@@ -16,9 +16,8 @@ pub fn send_req(msg: Message, resolver: SocketAddr, verbose: bool) -> AResult<(V
     if verbose {
         println!("Bound to local {}", socket.local_addr()?);
     }
-    socket
-        .connect(resolver)
-        .expect("couldn't connect to the DNS resolver");
+    socket.connect(resolver)?;
+    //.expect("couldn't connect to the DNS resolver");
     if verbose {
         println!("Connected to remote {resolver}");
     }
@@ -74,17 +73,17 @@ pub fn print_resp(
     };
 
     // Reprint the question, why not?
-    print!("Questions: ");
+    //print!("Q: ");
     for question in response_msg.question.iter() {
-        print!("{question}");
+        print!("Q:\"{question}\"");
     }
-    print!(" Resolver: {}", resolver);
+    print!(" R:\"{}\"", resolver);
 
     // Print records sent by the resolver.
     if !response_msg.answer.is_empty() {
-        print!(" Answers: ");
+        print!(" ");
         for record in response_msg.answer {
-            print!("{}", record.as_dns_response());
+            print!("Ans:\"{:.<30}\"", record.as_dns_response());
         }
     }
     if !response_msg.authority.is_empty() {

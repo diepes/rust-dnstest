@@ -31,7 +31,17 @@ fn main() {
         let query_id = rand::thread_rng().gen();
         let msg = Message::new_query(query_id, &name, record_type).unwrap();
         let timer = time::Instant::now();
-        let (resp, len) = io::send_req(msg, resolver, VERBOSE).unwrap();
+        // let (resp, len) = io::send_req(msg, resolver, VERBOSE).unwrap();
+        let resp: Vec<u8>;
+        let len: usize;
+        match io::send_req(msg, resolver, VERBOSE) {
+            Ok(v) => (resp, len) = v,
+            Err(e) => {
+                println!("Error: {e}");
+                std::thread::sleep(std::time::Duration::from_secs(interval));
+                continue;
+            }
+        }
         if let Err(e) = io::print_resp(resp, len, query_id, resolver, VERBOSE) {
             println!("Error: {e}");
         }
@@ -51,8 +61,10 @@ fn main() {
             };
             stat_ave_last_100 = (stat_ave_last_100 * 9.0 + duration as f64) / 10.0;
         }
-        print!(" time: {} ms", duration);
-        println!(" min:{stat_min} max:{stat_max} ave:{stat_ave_last_100:.1} cnt:{stat_cnt}");
+        print!(" time:{: >3}ms", duration);
+        println!(
+            " min:{stat_min: <3}max:{stat_max: <3}ave:{stat_ave_last_100: <5.1}cnt:{stat_cnt:0>3}"
+        );
         //io::stdout().flush();
 
         std::thread::sleep(std::time::Duration::from_secs(interval));
