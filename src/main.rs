@@ -44,9 +44,6 @@ fn main() {
                 continue;
             }
         }
-        if let Err(e) = io::print_resp(resp, len, query_id, resolver, VERBOSE) {
-            println!("Error: {e}");
-        }
         let duration = timer.elapsed().as_millis().as_i64();
         stat_cnt += 1;
         if firsttime {
@@ -63,11 +60,16 @@ fn main() {
             };
             stat_ave_last_100 = (stat_ave_last_100 * 9.0 + duration as f64) / 10.0;
         }
-        print!(" time:{: >3}ms", duration);
-        println!(
-            " min:{stat_min: <3}max:{stat_max: <3}ave:{stat_ave_last_100: <5.1}cnt:{stat_cnt:0>3} fail:{stat_fail}",
+        print!("time:{: >3}ms", duration);
+        print!(
+            " min:{stat_min: <3}max:{stat_max: <3}ave:{stat_ave_last_100: <5.1}cnt:{stat_cnt:0>3} fail:{stat_fail} ",
         );
         //io::stdout().flush();
+        if let Err(e) = io::print_resp(resp, len, query_id, resolver, VERBOSE) {
+            println!("Error: {e}");
+        }
+
+        println!();
 
         std::thread::sleep(std::time::Duration::from_secs(interval));
     }

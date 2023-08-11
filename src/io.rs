@@ -81,9 +81,9 @@ pub fn print_resp(
 
     // Print records sent by the resolver.
     if !response_msg.answer.is_empty() {
-        print!(" ");
+        //print!(" ");
         for record in response_msg.answer {
-            print!("Ans:\"{:.<30}\"", record.as_dns_response());
+            print!(" Ans:\"{:.<30}\"", record.as_dns_response());
         }
     }
     if !response_msg.authority.is_empty() {

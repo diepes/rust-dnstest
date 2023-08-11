@@ -2,6 +2,8 @@
 
 Domain INformation Gatherer, Obviously.
 
+* Native rust dns msg parsing
+
 ## Installation
 
 1. Install cargo, see [instructions on the Rust website](https://doc.rust-lang.org/cargo/getting-started/installation.html)
@@ -13,7 +15,9 @@ Domain INformation Gatherer, Obviously.
 $ dingo seriouseats.com
 
 # Output
-Questions: A: seriouseats.com. Resolver: 1.1.1.1:53 Answers: A: 151.101.66.137 (TTL 339)A: 151.101.194.137 (TTL 339)A: 151.101.130.137 (TTL 339)A: 151.101.2.137 (TTL 339) time: 11 ms
+time:  7ms min:6  max:8  ave:7.1  cnt:029 fail:0 Q:"A: google.com." R:"1.1.1.1:53" Ans:"A: 142.250.204.14 (TTL 279)..."
+time:  7ms min:6  max:8  ave:7.1  cnt:030 fail:0 Q:"A: google.com." R:"1.1.1.1:53" Ans:"A: 142.250.204.14 (TTL 249)..."
+time:  7ms min:6  max:8  ave:7.1  cnt:031 fail:0 Q:"A: google.com." R:"1.1.1.1:53" Ans:"A: 172.217.24.46 (TTL 264)...."
 
 ## Usage
 
