@@ -67,11 +67,7 @@ pub struct Message {
 }
 
 impl Message {
-    pub(crate) fn new_query(
-        id: u16,
-        domain_name: String,
-        record_type: RecordType,
-    ) -> AResult<Self> {
+    pub(crate) fn new_query(id: u16, domain_name: &str, record_type: RecordType) -> AResult<Self> {
         let name_len = domain_name.len();
         if name_len > MAX_NAME_BYTES {
             anyhow::bail!(

@@ -16,6 +16,7 @@ FLAGS:
 OPTIONS:
   -t, --record-type TYPE    Choose the DNS record type (supports A, CNAME, SOA and AAAA) (default A)
   -r, --resolver IP         Which DNS resolver to query (default is 1.1.1.1:53)
+  -i, --interval Seconds    If specified repeats and sleeps interval seconds between dns queries.
 ARGS:
   NAME A domain name to look up. Remember, these must be ASCII.
 ";
@@ -26,6 +27,7 @@ pub struct AppArgs {
     pub record_type: RecordType,
     pub name: String,
     pub resolver: SocketAddr,
+    pub interval: u64,
 }
 
 impl AppArgs {
@@ -43,6 +45,13 @@ impl AppArgs {
             .xor(pargs.opt_value_from_str("-t")?)
             .unwrap_or(RecordType::A);
 
+        let interval = pargs
+            .opt_value_from_str("--interval")?
+            .xor(pargs.opt_value_from_str("-i")?)
+            .unwrap_or("0".to_string())
+            .parse::<u64>()
+            .expect("Interval must be in full seconds e.g. 1");
+
         // I asked some coworkers and they suggested this DNS resolver
         let default_resolver = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(1, 1, 1, 1), 53));
         let resolver = pargs
@@ -50,7 +59,7 @@ impl AppArgs {
             .or(pargs.opt_value_from_str("-r")?)
             .unwrap_or(default_resolver);
 
-        let mut name: String = pargs.free_from_str()?;
+        let mut name: String = pargs.free_from_str().expect("Missing argument domain name");
         use std::str::FromStr;
         if AsciiString::from_str(&name).is_err() {
             eprintln!("DNS names must be ASCII, and {name} is not.");
@@ -64,6 +73,7 @@ impl AppArgs {
             record_type,
             name,
             resolver,
+            interval,
         };
 
         let remaining = pargs.finish();

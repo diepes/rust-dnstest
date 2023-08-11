@@ -2,7 +2,7 @@
 use bitvec::prelude::*;
 use std::{fmt, str::FromStr};
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum RecordType {
     A,
     Aaaa,

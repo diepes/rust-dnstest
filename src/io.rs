@@ -46,7 +46,13 @@ pub fn send_req(msg: Message, resolver: SocketAddr, verbose: bool) -> AResult<(V
 }
 
 /// Parse the binary response into a DNS message, and print it nicely.
-pub fn print_resp(resp: Vec<u8>, len: usize, sent_query_id: u16, resolver: SocketAddr, verbose: bool) -> AResult<()> {
+pub fn print_resp(
+    resp: Vec<u8>,
+    len: usize,
+    sent_query_id: u16,
+    resolver: SocketAddr,
+    verbose: bool,
+) -> AResult<()> {
     if verbose {
         println!("Response size: {len} bytes");
         println!("{resp:?}");
@@ -72,7 +78,7 @@ pub fn print_resp(resp: Vec<u8>, len: usize, sent_query_id: u16, resolver: Socke
     for question in response_msg.question.iter() {
         print!("{question}");
     }
-    print!(" Resolver: {}",resolver);
+    print!(" Resolver: {}", resolver);
 
     // Print records sent by the resolver.
     if !response_msg.answer.is_empty() {

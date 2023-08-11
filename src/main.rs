@@ -3,6 +3,7 @@ use crate::{
     dns_types::{Class, RecordType},
     message::Message,
 };
+use bitvec::macros::internal::funty::Fundamental;
 use rand::Rng;
 use std::time;
 
@@ -19,14 +20,41 @@ fn main() {
         name,
         record_type,
         resolver,
-    } = AppArgs::parse().unwrap();
-    let query_id = rand::thread_rng().gen();
-    let msg = Message::new_query(query_id, name, record_type).unwrap();
-    let timer = time::Instant::now();
-    let (resp, len) = io::send_req(msg, resolver, VERBOSE).unwrap();
-    if let Err(e) = io::print_resp(resp, len, query_id, resolver, VERBOSE) {
-        println!("Error: {e}");
+        interval,
+    } = AppArgs::parse().expect("Failed to parse command line arguments");
+    let mut firsttime = true;
+    let mut stat_cnt: i64 = 0;
+    let mut stat_max: i64 = 0;
+    let mut stat_min: i64 = 100000;
+    let mut stat_ave_last_100: f64 = 0.0;
+    while (interval > 0) | firsttime {
+        let query_id = rand::thread_rng().gen();
+        let msg = Message::new_query(query_id, &name, record_type).unwrap();
+        let timer = time::Instant::now();
+        let (resp, len) = io::send_req(msg, resolver, VERBOSE).unwrap();
+        if let Err(e) = io::print_resp(resp, len, query_id, resolver, VERBOSE) {
+            println!("Error: {e}");
+        }
+        let duration = timer.elapsed().as_millis().as_i64();
+        stat_cnt += 1;
+        if firsttime {
+            stat_max = duration;
+            stat_min = duration;
+            stat_ave_last_100 = duration as f64;
+            firsttime = false;
+        } else {
+            if duration > stat_max {
+                stat_max = duration
+            };
+            if duration < stat_min {
+                stat_min = duration
+            };
+            stat_ave_last_100 = (stat_ave_last_100 * 9.0 + duration as f64) / 10.0;
+        }
+        print!(" time: {} ms", duration);
+        println!(" min:{stat_min} max:{stat_max} ave:{stat_ave_last_100:.1} cnt:{stat_cnt}");
+        //io::stdout().flush();
+
+        std::thread::sleep(std::time::Duration::from_secs(interval));
     }
-    let duration = timer.elapsed().as_millis();
-    println!(" time: {} ms", duration);
 }
