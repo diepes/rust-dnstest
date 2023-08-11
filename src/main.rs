@@ -25,6 +25,7 @@ fn main() {
     let mut firsttime = true;
     let mut stat_cnt: i64 = 0;
     let mut stat_max: i64 = 0;
+    let mut stat_fail: i64 = 0;
     let mut stat_min: i64 = 100000;
     let mut stat_ave_last_100: f64 = 0.0;
     while (interval > 0) | firsttime {
@@ -38,6 +39,7 @@ fn main() {
             Ok(v) => (resp, len) = v,
             Err(e) => {
                 println!("Error: {e}");
+                stat_fail += 1;
                 std::thread::sleep(std::time::Duration::from_secs(interval));
                 continue;
             }
@@ -63,7 +65,7 @@ fn main() {
         }
         print!(" time:{: >3}ms", duration);
         println!(
-            " min:{stat_min: <3}max:{stat_max: <3}ave:{stat_ave_last_100: <5.1}cnt:{stat_cnt:0>3}"
+            " min:{stat_min: <3}max:{stat_max: <3}ave:{stat_ave_last_100: <5.1}cnt:{stat_cnt:0>3} fail:{stat_fail}",
         );
         //io::stdout().flush();
 
