@@ -60,9 +60,9 @@ fn main() {
             };
             stat_ave_last_100 = (stat_ave_last_100 * 9.0 + duration as f64) / 10.0;
         }
-        print!("time:{: >3}ms", duration);
+        print!("msec:{: <4}", duration);
         print!(
-            " min:{stat_min: <3}max:{stat_max: <3}ave:{stat_ave_last_100: <5.1}cnt:{stat_cnt:0>3} fail:{stat_fail} ",
+            "min:{stat_min: <4}max:{stat_max: <4}ave:{stat_ave_last_100: <6.1}cnt:{stat_cnt:0>4} fail:{stat_fail: <3}",
         );
         //io::stdout().flush();
         if let Err(e) = io::print_resp(resp, len, query_id, resolver, VERBOSE) {

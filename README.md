@@ -47,8 +47,8 @@ ARGS:
 Run container in k8s
 run full debug container:
 
-    kubectl run  -n kube-system dns-test --image=docker.io/diepes/dns-test:latest -- -i 1
+    kubectl run  -n kube-system dnstest --image=docker.io/diepes/dnstest:latest -- -i 1
 
 Monitor with
 
-    kubectl logs -n kube-system dns-test -f
+    kubectl logs -n kube-system dnstest -f
