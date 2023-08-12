@@ -6,6 +6,7 @@ use std::{
 use ascii::AsciiString;
 
 use crate::dns_types::RecordType;
+use std::str::FromStr;
 
 const HELP: &str = "\
 dingo -- domain information gatherer, obviously
@@ -18,7 +19,7 @@ OPTIONS:
   -r, --resolver IP         Which DNS resolver to query (default is 1.1.1.1:53)
   -i, --interval Seconds    If specified repeats and sleeps interval seconds between dns queries.
 ARGS:
-  NAME A domain name to look up. Remember, these must be ASCII.
+  NAME A domain name to look up. Remember, these must be ASCII.(Default google.com)
 ";
 
 /// Values derived from the CLI arguments.
@@ -59,8 +60,7 @@ impl AppArgs {
             .or(pargs.opt_value_from_str("-r")?)
             .unwrap_or(default_resolver);
 
-        let mut name: String = pargs.free_from_str().expect("Missing argument domain name");
-        use std::str::FromStr;
+        let mut name: String = pargs.free_from_str().unwrap_or("google.com".to_string());
         if AsciiString::from_str(&name).is_err() {
             eprintln!("DNS names must be ASCII, and {name} is not.");
             exit(1);

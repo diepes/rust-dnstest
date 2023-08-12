@@ -12,7 +12,7 @@ Domain INformation Gatherer, Obviously.
 ## Examples
 
 ```sh
-$ dingo seriouseats.com
+$ dingo google.com -i 1
 
 # Output
 time:  7ms min:6  max:8  ave:7.1  cnt:029 fail:0 Q:"A: google.com." R:"1.1.1.1:53" Ans:"A: 142.250.204.14 (TTL 279)..."
@@ -30,7 +30,8 @@ FLAGS:
 OPTIONS:
   -t, --record-type TYPE    Choose the DNS record type (supports A, CNAME, SOA and AAAA) (default A)
   -r, --resolver IP         Which DNS resolver to query (default is 1.1.1.1:53)
+  -i, --interval Seconds    If specified repeats and sleeps interval seconds between dns queries.
 ARGS:
-  NAME A domain name to look up. Remember, these must be ASCII.
+  NAME A domain name to look up. Remember, these must be ASCII.(Default google.com)
 
 ```
