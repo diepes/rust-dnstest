@@ -1,13 +1,18 @@
 # Dingo
 
 Domain INformation Gatherer, Obviously.
+* forked from adamchalmers/dingo (2023)
 
 * Native rust dns msg parsing
+* repeat lookup and display basic stats, min/max etc
+* docker container - for testing dns in k8s
 
 ## Installation
 
 1. Install cargo, see [instructions on the Rust website](https://doc.rust-lang.org/cargo/getting-started/installation.html)
-2. Run ./install.sh (it just does cargo build and copies the program to `/usr/local/bin/dingo`)
+2. Install or Run
+  a. Build & Install exe $ ./install.sh (to install it just does cargo build and copies the program to `/usr/local/bin/dingo`)
+  b. Build & run $ cargo run -- -i 2 www.google.com
 
 ## Examples
 
@@ -35,3 +40,13 @@ ARGS:
   NAME A domain name to look up. Remember, these must be ASCII.(Default google.com)
 
 ```
+## Run in k8s(Kubernetes)
+
+Run container in k8s
+run full debug container:
+
+    kubectl run  -n kube-system dns-test --image=docker.io/diepes/dns-test:latest -- -i 1
+
+Monitor with
+
+    kubectl logs -n kube-system dns-test -f
