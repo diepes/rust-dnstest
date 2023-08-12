@@ -1,6 +1,8 @@
 # Dingo
 
 Domain INformation Gatherer, Obviously.
+[![Docker Image CI](https://github.com/diepes/rust-dns-dingo/actions/workflows/docker-image.yml/badge.svg)](https://github.com/diepes/rust-dns-dingo/actions/workflows/docker-image.yml)
+
 * forked from adamchalmers/dingo (2023)
 
 * Native rust dns msg parsing
