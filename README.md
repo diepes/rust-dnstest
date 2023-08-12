@@ -13,8 +13,8 @@ Domain INformation Gatherer, Obviously.
 
 1. Install cargo, see [instructions on the Rust website](https://doc.rust-lang.org/cargo/getting-started/installation.html)
 2. Install or Run
-  a. Build & Install exe $ ./install.sh (to install it just does cargo build and copies the program to `/usr/local/bin/dnstest`)
-  b. Build & run $ cargo run -- -i 2 www.google.com
+   1. Build & Install exe ```$ ./install.sh``` (to install it just does cargo build and copies the program to `/usr/local/bin/dnstest`)
+   2. Build & run ```$ cargo run -- -i 2 www.google.com```
 
 ## Examples
 
@@ -47,8 +47,18 @@ ARGS:
 Run container in k8s
 run full debug container:
 
-    kubectl run  -n kube-system dnstest --image=docker.io/diepes/dnstest:latest -- -i 1
+```bash
+kubectl run  -n kube-system dnstest --image=docker.io/diepes/dnstest:latest -- -i 1 microsoft.com
+```
 
 Monitor with
 
-    kubectl logs -n kube-system dnstest -f
+```bash
+kubectl logs -n kube-system dnstest -f
+```
+
+Remove k8s pod with
+
+```bash
+    kubectl delete pod -n kube-system dnstest
+```
