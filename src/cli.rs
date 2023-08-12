@@ -9,9 +9,9 @@ use crate::dns_types::RecordType;
 use std::str::FromStr;
 
 const HELP: &str = "\
-dingo -- domain information gatherer, obviously
+dnstest -- domain information gatherer, obviously
 USAGE:
-  dingo [OPTIONS] --record-type TYPE NAME
+  dnstest [OPTIONS] --record-type TYPE NAME
 FLAGS:
   -h, --help                Prints help information
 OPTIONS:

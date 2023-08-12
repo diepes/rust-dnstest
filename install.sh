@@ -1,1 +1,1 @@
-cargo build -q --release && cp target/release/dingo /usr/local/bin/dingo
+cargo build -q --release && cp target/release/dnstest /usr/local/bin/dnstest

@@ -1,7 +1,7 @@
-# Dingo
+# dnstest
 
 Domain INformation Gatherer, Obviously.
-[![Docker Image CI](https://github.com/diepes/rust-dns-dingo/actions/workflows/docker-image.yml/badge.svg)](https://github.com/diepes/rust-dns-dingo/actions/workflows/docker-image.yml)
+[![Docker Image CI](https://github.com/diepes/rust-dnstest/actions/workflows/docker-image.yml/badge.svg)](https://github.com/diepes/rust-dnstest/actions/workflows/docker-image.yml)
 
 * forked from adamchalmers/dingo (2023)
 
@@ -13,13 +13,13 @@ Domain INformation Gatherer, Obviously.
 
 1. Install cargo, see [instructions on the Rust website](https://doc.rust-lang.org/cargo/getting-started/installation.html)
 2. Install or Run
-  a. Build & Install exe $ ./install.sh (to install it just does cargo build and copies the program to `/usr/local/bin/dingo`)
+  a. Build & Install exe $ ./install.sh (to install it just does cargo build and copies the program to `/usr/local/bin/dnstest`)
   b. Build & run $ cargo run -- -i 2 www.google.com
 
 ## Examples
 
 ```sh
-$ dingo google.com -i 1
+$ dnstest google.com -i 1
 
 # Output
 time:  7ms min:6  max:8  ave:7.1  cnt:029 fail:0 Q:"A: google.com." R:"1.1.1.1:53" Ans:"A: 142.250.204.14 (TTL 279)..."
@@ -30,7 +30,7 @@ time:  7ms min:6  max:8  ave:7.1  cnt:031 fail:0 Q:"A: google.com." R:"1.1.1.1:5
 
 ```bash
 
-dingo [OPTIONS] --record-type TYPE NAME
+dnstest [OPTIONS] --record-type TYPE NAME
 
 FLAGS:
   -h, --help                Prints help information
