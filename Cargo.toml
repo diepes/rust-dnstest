@@ -10,6 +10,7 @@ authors = ["Pieter Smit", "Adam Chalmers"]
 anyhow = "1.0.53"
 ascii = "1.0.0"
 bitvec = "1.0.0"
+ctrlc = "3.4.0"
 nom = "7.1.0"
 pico-args = "0.4.2"
 rand = "0.8.4"

@@ -5,6 +5,9 @@ use crate::{
 };
 use bitvec::macros::internal::funty::Fundamental;
 use rand::Rng;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use ctrlc;
 use std::time;
 
 mod cli;
@@ -28,7 +31,15 @@ fn main() {
     let mut stat_fail: i64 = 0;
     let mut stat_min: i64 = 100000;
     let mut stat_ave_last_100: f64 = 0.0;
-    while (interval > 0) | firsttime {
+
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    ctrlc::set_handler(move || {
+        r.store(false, Ordering::Relaxed);
+    })
+    .expect("Error setting Ctrl-C handler");
+
+    while ((interval > 0 ) && running.load(Ordering::Relaxed)) | firsttime {
         let query_id = rand::thread_rng().gen();
         let msg = Message::new_query(query_id, &name, record_type).unwrap();
         let timer = time::Instant::now();
@@ -73,4 +84,5 @@ fn main() {
 
         std::thread::sleep(std::time::Duration::from_secs(interval));
     }
+        println!("The End.");
 }
