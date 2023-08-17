@@ -17,8 +17,7 @@ pub fn send_req(msg: Message, resolver: SocketAddr, verbose: bool) -> AResult<(V
     if verbose {
         println!("io: Bound to local {}", socket.local_addr()?);
     }
-    socket.connect(resolver)?;
-    //.expect("couldn't connect to the DNS resolver");
+    socket.connect(resolver).expect("io: connect_Error couldn't connect to the DNS resolver");
     if verbose {
         println!("io: Connected to remote {resolver}");
     }

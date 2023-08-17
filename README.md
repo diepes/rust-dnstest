@@ -5,14 +5,26 @@ Domain INformation Gatherer, Obviously.
 
 * forked from adamchalmers/dingo (2023)
 
-* Native rust dns msg parsing
-* repeat lookup and display basic stats, min/max etc
-* docker container - for testing dns in k8s
+* Native rust dns msg parsing - raw udp dns connections.
+* repeat lookup and display basic stats, min/max etc up to 1request/second
+* docker container - for testing dns response time from within in k8s, not using local dns cache.
+
+## Quick run docker
+
+* ```docker run -it --rm docker.io/diepes/dnstest:latest -i 1 www.microsoft.com```
+
+        msec:11  min:11  max:11  ave:11.0  cnt:0001 fail:0  Q:"A: www.microsoft.com." R:"1.1.1.1:53"
+        Answer records:
+            CNAME: www.microsoft.com-c-3.edgekey.net. (TTL 3590)
+            CNAME: www.microsoft.com-c-3.edgekey.net.globalredir.akadns.net. (TTL 890)
+            CNAME: e13678.dscb.akamaiedge.net. (TTL 890)
+            A: 23.212.169.169 (TTL 10)....
 
 ## Installation
 
 1. Install cargo, see [instructions on the Rust website](https://doc.rust-lang.org/cargo/getting-started/installation.html)
-2. Install or Run
+2. Clone git repo ```git clone https://github.com/diepes/rust-dnstest.git```
+3. Install or Run
    1. Build & Install exe ```$ ./install.sh``` (to install it just does cargo build and copies the program to `/usr/local/bin/dnstest`)
    2. Build & run ```$ cargo run -- -i 2 www.google.com```
 
@@ -48,7 +60,7 @@ Run container in k8s
 run full debug container:
 
 ```bash
-kubectl run  -n kube-system dnstest --image=docker.io/diepes/dnstest:latest -- -i 1 microsoft.com
+kubectl run  -n kube-system -it --rm dnstest --image=docker.io/diepes/dnstest:latest -- -i 1 microsoft.com
 ```
 
 Monitor with

@@ -38,7 +38,7 @@ fn main() {
         match io::send_req(msg, resolver, VERBOSE) {
             Err(e) => {
                 let total_fails = stats.fail(1);
-                println!("Error {total_fails} io::send_req: {e}");
+                println!("Error {total_fails} send_req: {e}");
             }
             Ok(v) => {
                 (resp, len) = v;
