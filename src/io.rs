@@ -8,16 +8,24 @@ use std::{
 
 /// Sends the given DNS message to the given resolver.
 /// Returns the binary response.
-pub fn send_req(msg: Message, resolver: SocketAddr, verbose: bool) -> AResult<(Vec<u8>, usize)> {
+pub fn send_req(
+    msg: Message,
+    resolver: SocketAddr,
+    verbose: bool,
+) -> AResult<(Vec<u8>, usize, SocketAddr)> {
     // Connect to the DNS resolver
     let local_addr = "0.0.0.0:0";
     let socket =
         UdpSocket::bind(local_addr).expect("io: couldn't bind to a udpsocket on local address");
-    socket.set_read_timeout(Some(Duration::from_secs(5)))?;
+    socket
+        .set_read_timeout(Some(Duration::from_secs(5)))
+        .expect("io: couldn't set read timeout");
     if verbose {
         println!("io: Bound to local {}", socket.local_addr()?);
     }
-    socket.connect(resolver).expect("io: connect_Error couldn't connect to the DNS resolver");
+    socket
+        .connect(resolver)
+        .expect("io: connect_Error couldn't connect to the DNS resolver");
     if verbose {
         println!("io: Connected to remote {resolver}");
     }
@@ -38,9 +46,18 @@ pub fn send_req(msg: Message, resolver: SocketAddr, verbose: bool) -> AResult<(V
     // instantly succeeds (by writing nothing), so I was discarding the response.
     // See <https://users.rust-lang.org/t/empty-response-from-udp-recv-w-tokio-and-futures/20241/2>
     let mut response_buf = vec![0; MAX_UDP_BYTES];
-    match socket.recv(&mut response_buf) {
-        Ok(received) => Ok((response_buf, received)),
-        Err(e) => Err(anyhow!("io: recv function failed: {:?}", e)),
+    _ = match socket.peek_from(&mut response_buf) {
+        Ok((_number_of_bytes, _src_addr)) => {
+            //println!("io:socket.peek_from_ok {number_of_bytes} bytes from {src_addr} waiting.")
+            ();
+        }
+        Err(e) => println!("io:socket.peek_from_failed: {:?}", e),
+        // ERROR: Os { code: 11, kind: WouldBlock, message: "Resource temporarily unavailable" } << Unix TimeOut
+    };
+    match socket.recv_from(&mut response_buf) {
+        Ok((number_of_bytes, src_addr)) => Ok((response_buf, number_of_bytes, src_addr)),
+        Err(e) => Err(anyhow!("io:socket.recv_failed: {:?}", e)),
+        // ERROR: Os { code: 11, kind: WouldBlock, message: "Resource temporarily unavailable" } << Unix TimeOut
     }
 }
 
@@ -83,7 +100,7 @@ pub fn print_resp(
     match response_msg.answer.len() {
         1 => {
             print!(" Ans:\"{:.<30}\"", response_msg.answer[0].as_dns_response());
-        },
+        }
         2.. => {
             println!("\nAnswer records:");
             for record in response_msg.answer {

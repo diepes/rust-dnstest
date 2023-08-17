@@ -33,19 +33,16 @@ fn main() {
         let query_id = rand::thread_rng().gen();
         let msg = Message::new_query(query_id, &name, record_type).unwrap();
         let timer = time::Instant::now();
-        let resp: Vec<u8>;
-        let len: usize;
         match io::send_req(msg, resolver, VERBOSE) {
             Err(e) => {
                 let total_fails = stats.fail(1);
                 println!("Error {total_fails} send_req: {e}");
             }
-            Ok(v) => {
-                (resp, len) = v;
+            Ok((resp, number_of_bytes, _src_addr)) => {
                 let duration = timer.elapsed().as_millis().as_i64();
                 stats.update(duration);
                 stats.print();
-                if let Err(e) = io::print_resp(resp, len, query_id, resolver, VERBOSE) {
+                if let Err(e) = io::print_resp(resp, number_of_bytes, query_id, resolver, VERBOSE) {
                     println!("Error io::print_resp: {e}");
                 }
                 println!();
