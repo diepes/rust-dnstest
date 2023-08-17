@@ -15,10 +15,11 @@ pub fn send_req(
 ) -> AResult<(Vec<u8>, usize, SocketAddr)> {
     // Connect to the DNS resolver
     let local_addr = "0.0.0.0:0";
+    let timeout_sec = 5;
     let socket =
         UdpSocket::bind(local_addr).expect("io: couldn't bind to a udpsocket on local address");
     socket
-        .set_read_timeout(Some(Duration::from_secs(5)))
+        .set_read_timeout(Some(Duration::from_secs(timeout_sec)))
         .expect("io: couldn't set read timeout");
     if verbose {
         println!("io: Bound to local {}", socket.local_addr()?);
@@ -51,7 +52,7 @@ pub fn send_req(
             //println!("io:socket.peek_from_ok {number_of_bytes} bytes from {src_addr} waiting.")
             ();
         }
-        Err(e) => println!("io:socket.peek_from_failed: {:?}", e),
+        Err(e) => println!("io:socket.peek_from_NoData: timeout:{timeout_sec}s err:{:?}", e),
         // ERROR: Os { code: 11, kind: WouldBlock, message: "Resource temporarily unavailable" } << Unix TimeOut
     };
     match socket.recv_from(&mut response_buf) {
