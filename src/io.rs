@@ -11,25 +11,26 @@ use std::{
 pub fn send_req(msg: Message, resolver: SocketAddr, verbose: bool) -> AResult<(Vec<u8>, usize)> {
     // Connect to the DNS resolver
     let local_addr = "0.0.0.0:0";
-    let socket = UdpSocket::bind(local_addr).expect("couldn't bind to a local address");
+    let socket =
+        UdpSocket::bind(local_addr).expect("io: couldn't bind to a udpsocket on local address");
     socket.set_read_timeout(Some(Duration::from_secs(5)))?;
     if verbose {
-        println!("Bound to local {}", socket.local_addr()?);
+        println!("io: Bound to local {}", socket.local_addr()?);
     }
     socket.connect(resolver)?;
     //.expect("couldn't connect to the DNS resolver");
     if verbose {
-        println!("Connected to remote {resolver}");
+        println!("io: Connected to remote {resolver}");
     }
 
     // Send the DNS resolver the message
     let body = msg.serialize_bytes()?;
     if verbose {
-        println!("Request size: {} bytes", body.len());
+        println!("io: Request size: {} bytes", body.len());
     }
-    let bytes_sent = socket.send(&body).expect("couldn't send data");
+    let bytes_sent = socket.send(&body).expect("io: couldn't send data");
     if bytes_sent != body.len() {
-        panic!("Only {bytes_sent} bytes, message was probably truncated");
+        panic!("io: Only {bytes_sent} bytes, message was probably truncated");
     }
 
     // Get the resolver's response.
@@ -40,7 +41,7 @@ pub fn send_req(msg: Message, resolver: SocketAddr, verbose: bool) -> AResult<(V
     let mut response_buf = vec![0; MAX_UDP_BYTES];
     match socket.recv(&mut response_buf) {
         Ok(received) => Ok((response_buf, received)),
-        Err(e) => Err(anyhow!("recv function failed: {:?}", e)),
+        Err(e) => Err(anyhow!("io: recv function failed: {:?}", e)),
     }
 }
 
@@ -53,7 +54,7 @@ pub fn print_resp(
     verbose: bool,
 ) -> AResult<()> {
     if verbose {
-        println!("Response size: {len} bytes");
+        println!("io: Response size: {len} bytes");
         println!("{resp:?}");
     }
 
@@ -61,15 +62,15 @@ pub fn print_resp(
     let input = resp[..len].to_vec();
     let response_msg = match Message::deserialize(input) {
         Ok(msg) => msg,
-        Err(e) => anyhow::bail!("Error parsing response: {e}"),
+        Err(e) => anyhow::bail!("io: Error parsing response: {e}"),
     };
     let received_query_id = response_msg.header.id;
     if sent_query_id != received_query_id {
-        eprintln!("Mismatch between query IDs. Client sent {sent_query_id} and received {received_query_id}")
+        eprintln!("io: Mismatch between query IDs. Client sent {sent_query_id} and received {received_query_id}")
     }
     match response_msg.header.resp_code {
         ResponseCode::NoError => {}
-        err => anyhow::bail!("Error from resolver: {err}"),
+        err => anyhow::bail!("io: Error from resolver: {err}"),
     };
 
     // Reprint the question, why not?
@@ -80,20 +81,26 @@ pub fn print_resp(
     print!(" R:\"{}\"", resolver);
 
     // Print records sent by the resolver.
-    if !response_msg.answer.is_empty() {
-        //print!(" ");
-        for record in response_msg.answer {
-            print!(" Ans:\"{:.<30}\"", record.as_dns_response());
+    match response_msg.answer.len() {
+        1 => {
+            print!(" Ans:\"{:.<30}\"", response_msg.answer[0].as_dns_response());
+        },
+        2.. => {
+            println!("\nAnswer records:");
+            for record in response_msg.answer {
+                println!("    {:.<30}", record.as_dns_response());
+            }
         }
+        _ => (),
     }
     if !response_msg.authority.is_empty() {
-        println!("Authority records:");
+        println!("\nAuthority records:");
         for record in response_msg.authority {
-            println!("{}", record.as_dns_response());
+            println!("    {}", record.as_dns_response());
         }
     }
     if !response_msg.additional.is_empty() {
-        println!("Additional records:");
+        println!("\nAdditional records:");
         for record in response_msg.additional {
             println!("{}", record.as_dns_response());
         }
