@@ -66,13 +66,14 @@ pub fn send_req(
 }
 
 /// Parse the binary response into a DNS message, and print it nicely.
-pub fn print_resp(
+pub fn gen_resp(
     resp: Vec<u8>,
     len: usize,
     sent_query_id: u16,
     resolver: SocketAddr,
     verbose: u8,
-) -> AResult<()> {
+) -> AResult<String> {
+    let mut output = String::new();
     if verbose > 1 {
         println!("io: Response size: {len} bytes");
         println!("{resp:?}");
@@ -96,34 +97,35 @@ pub fn print_resp(
     // Reprint the question, why not?
     //print!("Q: ");
     for question in response_msg.question.iter() {
-        print!("Q:\"{question}\"");
+        output += format!("Q:\"{question}\"").as_str();
     }
-    print!(" R:\"{}\"", resolver);
+    output += format!(" R:\"{}\"", resolver).as_str();
 
     // Print records sent by the resolver.
     match response_msg.answer.len() {
         1 => {
-            print!(" Ans:\"{:.<30}\"", response_msg.answer[0].as_dns_response());
+            output +=
+                format!(" Ans:\"{:.<30}\"", response_msg.answer[0].as_dns_response()).as_str();
         }
         2.. => {
-            println!("\nAnswer records:");
+            output += format!("\nAnswer records:\n").as_str();
             for record in response_msg.answer {
-                println!("    {:.<30}", record.as_dns_response());
+                output += format!("    {:.<30}\n", record.as_dns_response()).as_str();
             }
         }
         _ => (),
     }
     if !response_msg.authority.is_empty() {
-        println!("\nAuthority records:");
+        output += format!("\nAuthority records:\n").as_str();
         for record in response_msg.authority {
-            println!("    {}", record.as_dns_response());
+            output += format!("    {}\n", record.as_dns_response()).as_str();
         }
     }
     if !response_msg.additional.is_empty() {
-        println!("\nAdditional records:");
+        output += format!("\nAdditional records:\n").as_str();
         for record in response_msg.additional {
-            println!("{}", record.as_dns_response());
+            output += format!("{}\n", record.as_dns_response()).as_str();
         }
     }
-    Ok(())
+    Ok(output)
 }

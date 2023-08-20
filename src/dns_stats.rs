@@ -42,12 +42,14 @@ impl Stats {
         self.stat_fail
     }
 
-    pub fn print(&self) {
-        print!("msec:{: <4}", self.last_duration);
-        print!("min:{: <4}", self.stat_min);
-        print!("max:{: <4}", self.stat_max);
-        print!("ave:{: <6.1}", self.stat_ave_last_100);
-        print!("cnt:{:0>4} ", self.stat_cnt);
-        print!("fail:{: <3}", self.stat_fail);
+    pub fn gen_output(&self) -> String {
+        let mut output = String::new();
+        output += format!("msec:{: <4}", self.last_duration).as_str();
+        output += format!("min:{: <4}", self.stat_min).as_str();
+        output += format!("max:{: <4}", self.stat_max).as_str();
+        output += format!("ave:{: <6.1}", self.stat_ave_last_100).as_str();
+        output += format!("cnt:{:0>4} ", self.stat_cnt).as_str();
+        output += format!("fail:{: <3}", self.stat_fail).as_str();
+        output
     }
 }

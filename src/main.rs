@@ -8,6 +8,7 @@ use rand::Rng;
 use std::time;
 
 mod cli_parser_clap;
+mod cli_read_resolve;
 mod dns_stats;
 mod dns_types;
 mod io;
@@ -18,7 +19,8 @@ mod stop_handler;
 fn main() {
     let cmd_args = cli_parser_clap::CmdArgs::parse();
     if cmd_args.verbose > 0 {
-        println!("Done with CmdArgs {:?}", cmd_args);
+        println!("Debug: Done with CmdArgs {:?}", cmd_args);
+        cli_read_resolve::print_resolve_conf();
     };
     let cli_parser_clap::CmdArgs {
         //unpack struct 🤯
@@ -38,6 +40,7 @@ fn main() {
         let query_id = rand::thread_rng().gen();
         let msg = Message::new_query(query_id, &name, record_type).unwrap();
         let timer = time::Instant::now();
+        let mut output: String = String::new();
         match io::send_req(msg, resolver, verbose) {
             Err(e) => {
                 let total_fails = stats.fail(1);
@@ -46,11 +49,18 @@ fn main() {
             Ok((resp, number_of_bytes, _src_addr)) => {
                 let duration = timer.elapsed().as_millis().as_i64();
                 stats.update(duration);
-                stats.print();
-                if let Err(e) = io::print_resp(resp, number_of_bytes, query_id, resolver, verbose) {
-                    println!("Error io::print_resp: {e}");
+                output += stats.gen_output().as_str();
+                match io::gen_resp(resp, number_of_bytes, query_id, resolver, verbose) {
+                    Err(e) => {
+                        let total_fails = stats.fail(1);
+                        println!("Error {total_fails} print_resp: {e}");
+                        output += format!("Error io::print_resp: {e}").as_str();
+                    }
+                    Ok(out_s) => {
+                        output += out_s.as_str();
+                    }
                 }
-                println!();
+                println!("{}", output);
             }
         }
         //# if sleep interval > 1 check every second for ctrl-c
