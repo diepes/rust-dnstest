@@ -11,7 +11,7 @@ Domain INformation Gatherer, Obviously.
 
 ## Quick run docker
 
-* ```docker run -it --rm docker.io/diepes/dnstest:latest -i 1 www.microsoft.com```
+* ```docker run -it --rm docker.io/diepes/dnstest:latest -i 1 www.microsoft.com``` 
 
         msec:11  min:11  max:11  ave:11.0  cnt:0001 fail:0  Q:"A: www.microsoft.com." R:"1.1.1.1:53"
         Answer records:
@@ -60,7 +60,9 @@ Run container in k8s
 run full debug container:
 
 ```bash
-kubectl run  -n kube-system -it --rm dnstest --image=docker.io/diepes/dnstest:latest -- -i 1 microsoft.com
+K8S_NS="kube-system"
+K8S_POD="dnstest"
+kubectl run  -n "${K8S_NS:-kube-system}" -it --rm ${K8S_POD:-dnstest} --image=docker.io/diepes/dnstest:latest -- -i 1 microsoft.com -r 100.96.0.10
 ```
 
 Monitor with

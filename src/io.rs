@@ -11,7 +11,7 @@ use std::{
 pub fn send_req(
     msg: Message,
     resolver: SocketAddr,
-    verbose: bool,
+    verbose: u8,
 ) -> AResult<(Vec<u8>, usize, SocketAddr)> {
     // Connect to the DNS resolver
     let local_addr = "0.0.0.0:0";
@@ -21,19 +21,19 @@ pub fn send_req(
     socket
         .set_read_timeout(Some(Duration::from_secs(timeout_sec)))
         .expect("io: couldn't set read timeout");
-    if verbose {
+    if verbose > 0 {
         println!("io: Bound to local {}", socket.local_addr()?);
     }
     socket
         .connect(resolver)
         .expect("io: connect_Error couldn't connect to the DNS resolver");
-    if verbose {
+    if verbose > 0 {
         println!("io: Connected to remote {resolver}");
     }
 
     // Send the DNS resolver the message
     let body = msg.serialize_bytes()?;
-    if verbose {
+    if verbose > 1 {
         println!("io: Request size: {} bytes", body.len());
     }
     let bytes_sent = socket.send(&body).expect("io: couldn't send data");
@@ -52,7 +52,10 @@ pub fn send_req(
             //println!("io:socket.peek_from_ok {number_of_bytes} bytes from {src_addr} waiting.")
             ();
         }
-        Err(e) => println!("io:socket.peek_from_NoData: timeout:{timeout_sec}s err:{:?}", e),
+        Err(e) => println!(
+            "io:socket.peek_from_NoData: timeout:{timeout_sec}s err:{:?}",
+            e
+        ),
         // ERROR: Os { code: 11, kind: WouldBlock, message: "Resource temporarily unavailable" } << Unix TimeOut
     };
     match socket.recv_from(&mut response_buf) {
@@ -68,9 +71,9 @@ pub fn print_resp(
     len: usize,
     sent_query_id: u16,
     resolver: SocketAddr,
-    verbose: bool,
+    verbose: u8,
 ) -> AResult<()> {
-    if verbose {
+    if verbose > 1 {
         println!("io: Response size: {len} bytes");
         println!("{resp:?}");
     }
