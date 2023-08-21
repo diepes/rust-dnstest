@@ -1,6 +1,8 @@
+
+const HIGH_DNS_RESPONSE: i64 = 1000;
 pub struct Stats {
     stat_cnt: i64,
-    stat_max: i64,
+    stat_high_cnt: i64,
     stat_fail: i64,
     stat_min: i64,
     stat_ave_last_100: f64,
@@ -11,7 +13,7 @@ impl Stats {
     pub fn new() -> Self {
         Self {
             stat_cnt: 0,
-            stat_max: 0,
+            stat_high_cnt: 0,
             stat_fail: 0,
             stat_min: 1000000,
             stat_ave_last_100: 0.0,
@@ -21,20 +23,16 @@ impl Stats {
 
     pub fn update(&mut self, duration: i64) {
         if self.stat_cnt == 0 {
-            self.stat_max = duration;
             self.stat_min = duration;
             self.stat_ave_last_100 = duration as f64;
         } else {
-            if duration > self.stat_max {
-                self.stat_max = duration
-            };
-            if duration < self.stat_min {
-                self.stat_min = duration
-            };
             self.stat_ave_last_100 = (self.stat_ave_last_100 * 9.0 + duration as f64) / 10.0;
         }
         self.last_duration = duration;
         self.stat_cnt += 1;
+        if duration > HIGH_DNS_RESPONSE {
+            self.stat_high_cnt += 1;
+        }
     }
 
     pub fn fail(&mut self, add: i8) -> i64 {
@@ -46,10 +44,10 @@ impl Stats {
         let mut output = String::new();
         output += format!("msec:{: <4}", self.last_duration).as_str();
         output += format!("min:{: <4}", self.stat_min).as_str();
-        output += format!("max:{: <4}", self.stat_max).as_str();
         output += format!("ave:{: <6.1}", self.stat_ave_last_100).as_str();
-        output += format!("cnt:{:0>4} ", self.stat_cnt).as_str();
-        output += format!("fail:{: <3}", self.stat_fail).as_str();
+        output += format!("Hcnt:{: <4}", self.stat_high_cnt).as_str();
+        output += format!("Fcnt:{: <3}", self.stat_fail).as_str();
+        output += format!("Tcnt:{:0>4} ", self.stat_cnt).as_str();
         output
     }
 }
