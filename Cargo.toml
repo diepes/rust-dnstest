@@ -10,8 +10,9 @@ authors = ["Pieter Smit", "Adam Chalmers"]
 anyhow = "1.0.53"
 ascii = "1.0.0"
 bitvec = "1.0.0"
+chrono = "0.4.26"
+chrono-tz = "0.8.3"
 clap = { version = "4.3.23", features = ["derive", "env"] }
 ctrlc = "3.4.0"
 nom = "7.1.0"
-pico-args = "0.4.2"
 rand = "0.8.4"
