@@ -31,7 +31,7 @@ impl Stats {
             self.stat_min = duration;
             self.stat_ave_last_100 = duration as f64;
         } else {
-            self.stat_ave_last_100 = (self.stat_ave_last_100 * 9.0 + duration as f64) / 10.0;
+            self.stat_ave_last_100 = (self.stat_ave_last_100 * 99.0 + duration as f64) / 100.0;
         }
         self.last_duration = duration;
         self.stat_cnt += 1;
