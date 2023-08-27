@@ -1,6 +1,6 @@
 use crate::time_stamp::get_timestamp_now;
 
-const HIGH_DNS_RESPONSE: i64 = 1000;
+const HIGH_DNS_RESPONSE: i64 = 200;
 pub struct Stats {
     stat_cnt: i64,
     stat_high_cnt: i64,
@@ -51,9 +51,9 @@ impl Stats {
         output += format!("msec:{: <4}", self.last_duration).as_str();
         output += format!("min:{: <4}", self.stat_min).as_str();
         output += format!("ave:{: <6.1}", self.stat_ave_last_100).as_str();
-        output += format!("Hcnt:{: <4}", self.stat_high_cnt).as_str();
-        output += format!("Fcnt:{: <3}", self.stat_fail).as_str();
-        output += format!("Tcnt:{:0>4} ", self.stat_cnt).as_str();
+        output += format!("tHigh:{: <4}", self.stat_high_cnt).as_str();
+        output += format!("tFail:{: <3}", self.stat_fail).as_str();
+        output += format!("Total:{:0>4} ", self.stat_cnt).as_str();
         output += format!("{}", self.stat_high_last_timestamp).as_str();
         // return output
         output
