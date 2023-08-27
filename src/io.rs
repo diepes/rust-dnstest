@@ -55,7 +55,7 @@ pub fn send_req(
         }
         Err(e) => println!(
             "io:socket.peek_from_NoData: {t} timeout:{to}s err:{e:?}",
-            t = get_timestamp_now(),
+            t = get_timestamp_now(""),
             to = timeout_sec,
             e = e
         ),
@@ -65,7 +65,7 @@ pub fn send_req(
         Ok((number_of_bytes, src_addr)) => Ok((response_buf, number_of_bytes, src_addr)),
         Err(e) => Err(anyhow!(
             "io:socket.recv_failed: {t} {e:?}",
-            t = get_timestamp_now(),
+            t = get_timestamp_now(""),
             e = e
         )),
         // ERROR: Os { code: 11, kind: WouldBlock, message: "Resource temporarily unavailable" } << Unix TimeOut
@@ -94,13 +94,13 @@ pub fn gen_resp(
     };
     let received_query_id = response_msg.header.id;
     if sent_query_id != received_query_id {
-        eprintln!("io: Mismatch between query IDs. {t} Client sent {sent_query_id} and received {received_query_id}",t=get_timestamp_now())
+        eprintln!("io: Mismatch between query IDs. {t} Client sent {sent_query_id} and received {received_query_id}",t=get_timestamp_now(""))
     }
     match response_msg.header.resp_code {
         ResponseCode::NoError => {}
         err => anyhow::bail!(
             "io: {t} Error from resolver: {err}",
-            t = get_timestamp_now()
+            t = get_timestamp_now("")
         ),
     };
 

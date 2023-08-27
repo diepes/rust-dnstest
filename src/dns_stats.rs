@@ -35,7 +35,7 @@ impl Stats {
         self.stat_cnt += 1;
         if duration > HIGH_DNS_RESPONSE {
             self.stat_high_cnt += 1;
-            self.stat_high_last_timestamp = get_timestamp_now();
+            self.stat_high_last_timestamp = get_timestamp_now("");
         } else if self.stat_high_last_timestamp.len() > 0 {
             self.stat_high_last_timestamp = String::from("");
         }
@@ -51,13 +51,11 @@ impl Stats {
         output += format!("msec:{: <4}", self.last_duration).as_str();
         output += format!("min:{: <4}", self.stat_min).as_str();
         output += format!("ave:{: <6.1}", self.stat_ave_last_100).as_str();
-        output += format!(
-            "Hcnt:{: <4}{}",
-            self.stat_high_cnt, self.stat_high_last_timestamp
-        )
-        .as_str();
+        output += format!("Hcnt:{: <4}", self.stat_high_cnt).as_str();
         output += format!("Fcnt:{: <3}", self.stat_fail).as_str();
         output += format!("Tcnt:{:0>4} ", self.stat_cnt).as_str();
+        output += format!("{}", self.stat_high_last_timestamp).as_str();
+        // return output
         output
     }
 }
