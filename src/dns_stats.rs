@@ -35,6 +35,9 @@ impl Stats {
         }
         self.last_duration = duration;
         self.stat_cnt += 1;
+        if self.stat_min > duration {
+            self.stat_min = duration
+        }
         if !self.stat_high_last_timestamp.is_empty() {
             // reset timestamp
             self.stat_high_last_timestamp = String::from("");
