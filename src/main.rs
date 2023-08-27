@@ -30,10 +30,10 @@ fn main() {
         resolver,
         interval,
         verbose,
+        mut slow,
     } = cmd_args;
-
     let mut firsttime = true;
-    let mut stats = dns_stats::Stats::new();
+    let mut stats = dns_stats::Stats::new(slow);
     let stop = stop_handler::Stop::new();
 
     while ((interval > 0) && !stop.stopped()) | firsttime {
@@ -48,7 +48,7 @@ fn main() {
                 println!("Error {total_fails} send_req: {e}");
             }
             Ok((resp, number_of_bytes, _src_addr)) => {
-                let duration = timer.elapsed().as_millis().as_i64();
+                let duration = timer.elapsed().as_millis().as_u64();
                 stats.update(duration);
                 output += stats.gen_output().as_str();
                 match io::gen_resp(resp, number_of_bytes, query_id, resolver, verbose) {

@@ -1,21 +1,24 @@
 use crate::time_stamp::get_timestamp_now;
 
-const HIGH_DNS_RESPONSE: i64 = 200;
+const HIGH_DNS_RESPONSE: u64 = 200;
 pub struct Stats {
-    stat_cnt: i64,
-    stat_high_cnt: i64,
+    stat_cnt: u64,
+    stat_high_match: Vec<u64>,
+    stat_high_cnt: Vec<u64>,
     stat_high_last_timestamp: String,
-    stat_fail: i64,
-    stat_min: i64,
+    stat_fail: u64,
+    stat_min: u64,
     stat_ave_last_100: f64,
-    last_duration: i64,
+    last_duration: u64,
 }
 
 impl Stats {
-    pub fn new() -> Self {
+    pub fn new(mut slow: Vec<u64>) -> Self {
+        slow.sort_by(|a, b| b.cmp(a));  //High to low
         Self {
             stat_cnt: 0,
-            stat_high_cnt: 0,
+            stat_high_cnt: vec![0; slow.len()],
+            stat_high_match: slow,
             stat_high_last_timestamp: String::from(""),
             stat_fail: 0,
             stat_min: 1000000,
@@ -24,7 +27,7 @@ impl Stats {
         }
     }
 
-    pub fn update(&mut self, duration: i64) {
+    pub fn update(&mut self, duration: u64) {
         if self.stat_cnt == 0 {
             self.stat_min = duration;
             self.stat_ave_last_100 = duration as f64;
@@ -33,16 +36,21 @@ impl Stats {
         }
         self.last_duration = duration;
         self.stat_cnt += 1;
-        if duration > HIGH_DNS_RESPONSE {
-            self.stat_high_cnt += 1;
-            self.stat_high_last_timestamp = get_timestamp_now("");
-        } else if self.stat_high_last_timestamp.len() > 0 {
+        if self.stat_high_last_timestamp.len() > 0 {
+            // reset timestamp
             self.stat_high_last_timestamp = String::from("");
+        }
+        for (i, v) in self.stat_high_match.iter().enumerate() {
+            if duration > *v {
+                self.stat_high_cnt[i] += 1;
+                self.stat_high_last_timestamp = get_timestamp_now("");
+                break;
+            }
         }
     }
 
-    pub fn fail(&mut self, add: i8) -> i64 {
-        self.stat_fail += add as i64;
+    pub fn fail(&mut self, add: i8) -> u64 {
+        self.stat_fail += add as u64;
         self.stat_fail
     }
 
@@ -51,7 +59,9 @@ impl Stats {
         output += format!("msec:{: <4}", self.last_duration).as_str();
         output += format!("min:{: <4}", self.stat_min).as_str();
         output += format!("ave:{: <6.1}", self.stat_ave_last_100).as_str();
-        output += format!("tHigh:{: <4}", self.stat_high_cnt).as_str();
+        for (i, v) in self.stat_high_match.iter().enumerate() {
+            output += format!("t{}:{: <4}", v, self.stat_high_cnt[i]).as_str();
+        }
         output += format!("tFail:{: <3}", self.stat_fail).as_str();
         output += format!("Total:{:0>4} ", self.stat_cnt).as_str();
         output += format!("{}", self.stat_high_last_timestamp).as_str();

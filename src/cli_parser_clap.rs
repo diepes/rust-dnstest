@@ -29,7 +29,13 @@ pub struct CmdArgs {
 
     #[clap(short, long, action = clap::ArgAction::Count)]
     pub verbose: u8,
+
+    /// specify msec seen as to high.
+    //#[clap(short, long, value_parser, num_args = 0.., value_delimiter = ',')]
+    #[clap(short, long, num_args = 0..=3, value_delimiter = ',', default_value = "1000")]
+    pub slow: Vec<u64>,
 }
+
 fn parser_abs_dns_name(s: &str) -> Result<String, String> {
     let mut name = s.to_string();
     if AsciiString::from_str(&name).is_err() {
