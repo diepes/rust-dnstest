@@ -1,5 +1,6 @@
 //! Doing network IO and printing to the terminal.
 use crate::message::{header::ResponseCode, Message, MAX_UDP_BYTES};
+use crate::time_stamp::get_timestamp_now;
 use anyhow::{anyhow, Result as AResult};
 use std::{
     net::{SocketAddr, UdpSocket},
@@ -53,14 +54,20 @@ pub fn send_req(
             ();
         }
         Err(e) => println!(
-            "io:socket.peek_from_NoData: timeout:{timeout_sec}s err:{:?}",
-            e
+            "io:socket.peek_from_NoData: {t} timeout:{to}s err:{e:?}",
+            t = get_timestamp_now(),
+            to = timeout_sec,
+            e = e
         ),
         // ERROR: Os { code: 11, kind: WouldBlock, message: "Resource temporarily unavailable" } << Unix TimeOut
     };
     match socket.recv_from(&mut response_buf) {
         Ok((number_of_bytes, src_addr)) => Ok((response_buf, number_of_bytes, src_addr)),
-        Err(e) => Err(anyhow!("io:socket.recv_failed: {:?}", e)),
+        Err(e) => Err(anyhow!(
+            "io:socket.recv_failed: {t} {e:?}",
+            t = get_timestamp_now(),
+            e = e
+        )),
         // ERROR: Os { code: 11, kind: WouldBlock, message: "Resource temporarily unavailable" } << Unix TimeOut
     }
 }
@@ -87,11 +94,14 @@ pub fn gen_resp(
     };
     let received_query_id = response_msg.header.id;
     if sent_query_id != received_query_id {
-        eprintln!("io: Mismatch between query IDs. Client sent {sent_query_id} and received {received_query_id}")
+        eprintln!("io: Mismatch between query IDs. {t} Client sent {sent_query_id} and received {received_query_id}",t=get_timestamp_now())
     }
     match response_msg.header.resp_code {
         ResponseCode::NoError => {}
-        err => anyhow::bail!("io: Error from resolver: {err}"),
+        err => anyhow::bail!(
+            "io: {t} Error from resolver: {err}",
+            t = get_timestamp_now()
+        ),
     };
 
     // Reprint the question, why not?

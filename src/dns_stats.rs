@@ -1,5 +1,4 @@
-use chrono;
-use chrono_tz; //::Pacific::Auckland;
+use crate::time_stamp::get_timestamp_now;
 
 const HIGH_DNS_RESPONSE: i64 = 1000;
 pub struct Stats {
@@ -36,8 +35,7 @@ impl Stats {
         self.stat_cnt += 1;
         if duration > HIGH_DNS_RESPONSE {
             self.stat_high_cnt += 1;
-            let nz_now = chrono::Utc::now().with_timezone(&chrono_tz::Pacific::Auckland);
-            self.stat_high_last_timestamp = format!(" TimeStamp:__{}__ ", nz_now);
+            self.stat_high_last_timestamp = get_timestamp_now();
         } else if self.stat_high_last_timestamp.len() > 0 {
             self.stat_high_last_timestamp = String::from("");
         }

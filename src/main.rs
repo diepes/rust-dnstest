@@ -15,6 +15,7 @@ mod io;
 mod message;
 mod parse;
 mod stop_handler;
+mod time_stamp;
 
 fn main() {
     let cmd_args = cli_parser_clap::CmdArgs::parse();
