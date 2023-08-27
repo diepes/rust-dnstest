@@ -26,12 +26,12 @@ Domain INformation Gatherer, Obviously.
 2. Clone git repo ```git clone https://github.com/diepes/rust-dnstest.git```
 3. Install or Run
    1. Build & Install exe ```$ ./install.sh``` (to install it just does cargo build and copies the program to `/usr/local/bin/dnstest`)
-   2. Build & run ```$ cargo run -- -i 2 www.google.com```
+   2. Build & run ```$ cargo run -- -i 2 -s 10,50,100 -- www.google.com```
 
 ## Examples
 
 ```sh
-$ dnstest google.com -i 1
+$ dnstest -i 1 -- google.com
 
 # Output
 time:  7ms min:6  max:8  ave:7.1  cnt:029 fail:0 Q:"A: google.com." R:"1.1.1.1:53" Ans:"A: 142.250.204.14 (TTL 279)..."
@@ -62,7 +62,7 @@ run full debug container:
 ```bash
 K8S_NS="kube-system"
 K8S_POD="dnstest"
-kubectl run  -n "${K8S_NS:-kube-system}" -it --rm ${K8S_POD:-dnstest} --image=docker.io/diepes/dnstest:latest -- -i 1 microsoft.com -r 100.96.0.10
+kubectl run  -n "${K8S_NS:-kube-system}" -it --rm ${K8S_POD:-dnstest} --image=docker.io/diepes/dnstest:latest -- -i 1  -r 100.96.0.10 -s 30,100,150 -- microsoft.com
 ```
 
 Monitor with

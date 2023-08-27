@@ -1,4 +1,3 @@
-use ctrlc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
@@ -15,7 +14,7 @@ impl Stop {
             println!("\nReceived Ctrl-C! Stop and Exit...");
         })
         .expect("Error setting Ctrl-C handler");
-        Self { stop: stop }
+        Self { stop }
     }
 
     pub fn stopped(&self) -> bool {

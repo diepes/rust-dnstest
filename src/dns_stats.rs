@@ -1,6 +1,5 @@
 use crate::time_stamp::get_timestamp_now;
 
-const HIGH_DNS_RESPONSE: u64 = 200;
 pub struct Stats {
     stat_cnt: u64,
     stat_high_match: Vec<u64>,
@@ -14,7 +13,7 @@ pub struct Stats {
 
 impl Stats {
     pub fn new(mut slow: Vec<u64>) -> Self {
-        slow.sort_by(|a, b| b.cmp(a));  //High to low
+        slow.sort_by(|a, b| b.cmp(a)); //High to low
         Self {
             stat_cnt: 0,
             stat_high_cnt: vec![0; slow.len()],
@@ -36,7 +35,7 @@ impl Stats {
         }
         self.last_duration = duration;
         self.stat_cnt += 1;
-        if self.stat_high_last_timestamp.len() > 0 {
+        if !self.stat_high_last_timestamp.is_empty() {
             // reset timestamp
             self.stat_high_last_timestamp = String::from("");
         }
@@ -64,7 +63,7 @@ impl Stats {
         }
         output += format!("tFail:{: <3}", self.stat_fail).as_str();
         output += format!("Total:{:0>4} ", self.stat_cnt).as_str();
-        output += format!("{}", self.stat_high_last_timestamp).as_str();
+        output += format!("{} ", self.stat_high_last_timestamp).as_str();
         // return output
         output
     }

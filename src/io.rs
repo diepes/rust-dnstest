@@ -48,10 +48,9 @@ pub fn send_req(
     // instantly succeeds (by writing nothing), so I was discarding the response.
     // See <https://users.rust-lang.org/t/empty-response-from-udp-recv-w-tokio-and-futures/20241/2>
     let mut response_buf = vec![0; MAX_UDP_BYTES];
-    _ = match socket.peek_from(&mut response_buf) {
+    match socket.peek_from(&mut response_buf) {
         Ok((_number_of_bytes, _src_addr)) => {
             //println!("io:socket.peek_from_ok {number_of_bytes} bytes from {src_addr} waiting.")
-            ();
         }
         Err(e) => println!(
             "io:socket.peek_from_NoData: {t} timeout:{to}s err:{e:?}",
@@ -118,7 +117,7 @@ pub fn gen_resp(
                 format!(" Ans:\"{:.<30}\"", response_msg.answer[0].as_dns_response()).as_str();
         }
         2.. => {
-            output += format!("\nAnswer records:\n").as_str();
+            output += "\nAnswer records:\n".to_string().as_str();
             for record in response_msg.answer {
                 output += format!("    {:.<30}\n", record.as_dns_response()).as_str();
             }
@@ -126,13 +125,13 @@ pub fn gen_resp(
         _ => (),
     }
     if !response_msg.authority.is_empty() {
-        output += format!("\nAuthority records:\n").as_str();
+        output += "\nAuthority records:\n".to_string().as_str();
         for record in response_msg.authority {
             output += format!("    {}\n", record.as_dns_response()).as_str();
         }
     }
     if !response_msg.additional.is_empty() {
-        output += format!("\nAdditional records:\n").as_str();
+        output += "\nAdditional records:\n".to_string().as_str();
         for record in response_msg.additional {
             output += format!("{}\n", record.as_dns_response()).as_str();
         }

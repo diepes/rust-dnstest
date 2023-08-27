@@ -3,7 +3,6 @@ use std::str::FromStr;
 
 use crate::dns_types::RecordType;
 use ascii::AsciiString;
-use clap;
 use clap::Parser;
 
 /// DNS testing connection to dns server not using local resolver

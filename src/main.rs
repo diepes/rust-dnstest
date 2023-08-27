@@ -30,7 +30,7 @@ fn main() {
         resolver,
         interval,
         verbose,
-        mut slow,
+        slow,
     } = cmd_args;
     let mut firsttime = true;
     let mut stats = dns_stats::Stats::new(slow);
