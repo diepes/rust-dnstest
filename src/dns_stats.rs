@@ -7,8 +7,8 @@ pub struct Stats {
     stat_high_last_timestamp: String,
     stat_fail: u64,
     stat_min: u64,
-    stat_ave_last_100: f64,
-    last_duration: u64,
+    stat_ave_last_100: u64,
+    last_duration_usec: u64,
 }
 
 impl Stats {
@@ -21,29 +21,29 @@ impl Stats {
             stat_high_last_timestamp: String::from(""),
             stat_fail: 0,
             stat_min: 1000000,
-            stat_ave_last_100: 0.0,
-            last_duration: 0,
+            stat_ave_last_100: 0,
+            last_duration_usec: 0,
         }
     }
 
-    pub fn update(&mut self, duration: u64) {
+    pub fn update(&mut self, duration_usec: u64) {
         if self.stat_cnt == 0 {
-            self.stat_min = duration;
-            self.stat_ave_last_100 = duration as f64;
+            self.stat_min = duration_usec;
+            self.stat_ave_last_100 = duration_usec;
         } else {
-            self.stat_ave_last_100 = (self.stat_ave_last_100 * 99.0 + duration as f64) / 100.0;
+            self.stat_ave_last_100 = (self.stat_ave_last_100 * 99 + duration_usec) / 100;
         }
-        self.last_duration = duration;
+        self.last_duration_usec = duration_usec;
         self.stat_cnt += 1;
-        if self.stat_min > duration {
-            self.stat_min = duration
+        if self.stat_min > duration_usec {
+            self.stat_min = duration_usec
         }
         if !self.stat_high_last_timestamp.is_empty() {
             // reset timestamp
             self.stat_high_last_timestamp = String::from("");
         }
         for (i, v) in self.stat_high_match.iter().enumerate() {
-            if duration > *v {
+            if duration_usec > *v * 1000 {
                 self.stat_high_cnt[i] += 1;
                 self.stat_high_last_timestamp = get_timestamp_now("");
                 break;
@@ -56,11 +56,45 @@ impl Stats {
         self.stat_fail
     }
 
+    fn to_msec(usec: u64, width: u8) -> String {
+        let t = usec as f64;
+        let r = t / 1000.0;
+        match width {
+            0..=2 => {
+                if r < 10.0 {
+                    let t = r * 10.0;
+                    (t.round() / 10.0).to_string()
+                } else {
+                    r.round().to_string()
+                }
+            }
+            3 => {
+                if r < 100.0 {
+                    let t = r * 10.0;
+                    (t.round() / 10.0).to_string()
+                } else {
+                    r.round().to_string()
+                }
+            }
+            4.. => {
+                if r < 100.0 {
+                    let t = r * 100.0;
+                    (t.round() / 100.0).to_string()
+                } else if r < 1000.0 {
+                    let t = r * 10.0;
+                    (t.round() / 10.0).to_string()
+                } else {
+                    r.round().to_string()
+                }
+            }
+        }
+    }
+
     pub fn gen_output(&self) -> String {
         let mut output = String::new();
-        output += format!("msec:{: <4}", self.last_duration).as_str();
-        output += format!("min:{: <4}", self.stat_min).as_str();
-        output += format!("ave:{: <6.1}", self.stat_ave_last_100).as_str();
+        output += format!("msec:{: <4}", Self::to_msec(self.last_duration_usec, 2)).as_str();
+        output += format!("min:{: <4}", Self::to_msec(self.stat_min, 2)).as_str();
+        output += format!("ave:{: <6}", Self::to_msec(self.stat_ave_last_100, 3)).as_str();
         for (i, v) in self.stat_high_match.iter().enumerate() {
             output += format!("t{}:{: <4}", v, self.stat_high_cnt[i]).as_str();
         }

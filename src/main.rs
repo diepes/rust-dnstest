@@ -48,7 +48,7 @@ fn main() {
                 println!("Error {total_fails} send_req: {e}");
             }
             Ok((resp, number_of_bytes, _src_addr)) => {
-                let duration = timer.elapsed().as_millis().as_u64();
+                let duration = timer.elapsed().as_micros().as_u64();
                 stats.update(duration);
                 output += stats.gen_output().as_str();
                 match io::gen_resp(resp, number_of_bytes, query_id, resolver, verbose) {
