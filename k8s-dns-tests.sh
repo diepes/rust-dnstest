@@ -24,7 +24,7 @@ for pod in "${pods[@]}"; do
     elif [[ "$action" == "delete" ]]; then
         k8s_cmd="kubectl delete -n $pods_ns pod \"$pod_name\""
 
-    elif [[ "$action" == "logs" ]]; then
+    elif [[ "$action" == "logs" ]] || [[ "$action" == "log" ]]; then
         f=$(mktemp /tmp/dns-test-script.XXXXXX)
         k8s_cmd="kubectl logs -n $pods_ns \"$pod_name\""
         k8s_filter="> ${f}; grep \"Time\" ${f} ; grep \"^msec:\" ${f} |tail -n1;"
