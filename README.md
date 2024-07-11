@@ -11,7 +11,7 @@ Domain INformation Gatherer, Obviously.
 
 ## Quick run docker
 
-* ```docker run -it --rm docker.io/diepes/dnstest:latest -i 1 www.microsoft.com``` 
+* ```docker run -it --rm docker.io/diepes/dnstest:latest -i 1 www.microsoft.com```
 
         msec:11  min:11  max:11  ave:11.0  cnt:0001 fail:0  Q:"A: www.microsoft.com." R:"1.1.1.1:53"
         Answer records:
@@ -76,3 +76,7 @@ Remove k8s pod with
 ```bash
     kubectl delete pod -n kube-system dnstest
 ```
+
+## MacOs find dns servers
+
+* ```scutil --dns | grep 'nameserver\[[0-9]*\]'```
