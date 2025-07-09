@@ -1,6 +1,7 @@
 use crate::{parse::parse_labels_then_zero, Class, RecordType};
 use anyhow::{anyhow, Result as AResult};
 use bitvec::prelude::*;
+use nom::Parser;
 use nom::{combinator::map_res, number::complete::be_u16, IResult};
 use std::fmt;
 
@@ -60,8 +61,8 @@ impl Entry {
 
     pub fn deserialize(i: &[u8]) -> IResult<&[u8], Self> {
         let (i, labels) = parse_labels_then_zero(i)?;
-        let (i, record_type) = map_res(be_u16, RecordType::try_from)(i)?;
-        let (i, record_qclass) = map_res(be_u16, Class::try_from)(i)?;
+        let (i, record_type) = map_res(be_u16, RecordType::try_from).parse(i)?;
+        let (i, record_qclass) = map_res(be_u16, Class::try_from).parse(i)?;
         Ok((
             i,
             Self {

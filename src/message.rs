@@ -12,12 +12,12 @@ use crate::{
 use anyhow::Result as AResult;
 use bitvec::prelude::*;
 use header::Header;
+use nom::Parser;
 use nom::{
     combinator::{map, map_res, peek},
     error::Error,
     multi::{count, length_value},
     number::complete::{be_u16, be_u32, be_u8},
-    sequence::tuple,
     IResult,
 };
 use std::{
@@ -127,21 +127,25 @@ impl MsgParser {
         move |i| {
             let recursion_depth = 0;
             let record = match record_type {
-                RecordType::A => map(tuple((be_u8, be_u8, be_u8, be_u8)), |(a, b, c, d)| {
+                RecordType::A => map((be_u8, be_u8, be_u8, be_u8), |(a, b, c, d)| {
                     RecordData::A(Ipv4Addr::new(a, b, c, d))
-                })(i)?,
+                })
+                .parse(i)?,
                 RecordType::Aaaa => map(
-                    tuple((
+                    (
                         be_u16, be_u16, be_u16, be_u16, be_u16, be_u16, be_u16, be_u16,
-                    )),
+                    ),
                     |(a, b, c, d, e, f, g, h)| {
                         RecordData::Aaaa(Ipv6Addr::new(a, b, c, d, e, f, g, h))
                     },
-                )(i)?,
+                )
+                .parse(i)?,
                 RecordType::Cname => {
-                    map(|i| self.parse_name(i, recursion_depth), RecordData::Cname)(i)?
+                    map(|i| self.parse_name(i, recursion_depth), RecordData::Cname).parse(i)?
                 }
-                RecordType::Ns => map(|i| self.parse_name(i, recursion_depth), RecordData::Ns)(i)?,
+                RecordType::Ns => {
+                    map(|i| self.parse_name(i, recursion_depth), RecordData::Ns).parse(i)?
+                }
                 RecordType::Soa => {
                     let (i, mname) = self.parse_name(i, recursion_depth)?;
                     let (i, rname) = self.parse_name(i, recursion_depth)?;
@@ -172,7 +176,7 @@ impl MsgParser {
     ) -> IResult<&'i [u8], String> {
         let mut name = String::new();
         loop {
-            let (i, first_byte) = peek(be_u8)(input)?;
+            let (i, first_byte) = peek(be_u8).parse(input)?;
             input = i;
             const POINTER_HEADER: u8 = 0b11000000;
             if first_byte >= POINTER_HEADER {
@@ -181,7 +185,7 @@ impl MsgParser {
                 // The remaining 14 bits are the offset that the pointer points at.
                 // So, first, examine the 14 bits to find the offset of the next label.
                 let dereference_pointer = |ptr| (ptr - ((POINTER_HEADER as u16) << 8)) as usize;
-                let (i, next_label_offset) = map(be_u16, dereference_pointer)(input)?;
+                let (i, next_label_offset) = map(be_u16, dereference_pointer).parse(input)?;
 
                 if recursion_depth >= MAX_RECURSION_DEPTH {
                     panic!("too many DNS message compression indirections!")
@@ -213,8 +217,8 @@ impl MsgParser {
 
     fn parse_record<'i>(&self, input: &'i [u8]) -> IResult<&'i [u8], Record, Error<&'i [u8]>> {
         let (input, name) = self.parse_name(input, 0)?;
-        let (input, record_type) = map_res(be_u16, RecordType::try_from)(input)?;
-        let (input, class) = map_res(be_u16, Class::try_from)(input)?;
+        let (input, record_type) = map_res(be_u16, RecordType::try_from).parse(input)?;
+        let (input, class) = map_res(be_u16, Class::try_from).parse(input)?;
         // RFC defines the max TTL as "positive values of a signed 32 bit number."
         let max_ttl: isize = i32::MAX.try_into().unwrap();
         let (input, ttl) = map_res(be_u32, |ttl| {
@@ -223,8 +227,9 @@ impl MsgParser {
             } else {
                 Ok(ttl)
             }
-        })(input)?;
-        let (i, data) = length_value(be_u16, self.parse_rdata(record_type))(input)?;
+        })
+        .parse(input)?;
+        let (i, data) = length_value(be_u16, self.parse_rdata(record_type)).parse(input)?;
         Ok((
             i,
             Record {
@@ -244,15 +249,18 @@ impl MsgParser {
         let (i, header) = nom::bits::bits(Header::deserialize)(i)?;
 
         // Parse the right number of question sections.
-        let (i, question) = count(question::Entry::deserialize, header.question_count.into())(i)?;
+        let (i, question) =
+            count(question::Entry::deserialize, header.question_count.into()).parse(i)?;
 
         // After the question comes the DNS records themselves. Parse the right number of each kind!
-        let (i, answer) = count(|i| self.parse_record(i), header.answer_count.into())(i)?;
-        let (i, authority) = count(|i| self.parse_record(i), header.name_server_count.into())(i)?;
+        let (i, answer) = count(|i| self.parse_record(i), header.answer_count.into()).parse(i)?;
+        let (i, authority) =
+            count(|i| self.parse_record(i), header.name_server_count.into()).parse(i)?;
         let (i, additional) = count(
             |i| self.parse_record(i),
             header.additional_records_count.into(),
-        )(i)?;
+        )
+        .parse(i)?;
         Ok((
             i,
             Message {

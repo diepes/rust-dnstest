@@ -1,3 +1,4 @@
+use nom::Parser;
 use nom::{combinator::map_res, IResult};
 
 /// Matches a sequence of labels, terminated by a zero-length label.
@@ -28,5 +29,6 @@ pub fn parse_label(i: &[u8]) -> IResult<&[u8], String> {
     let parse_label = nom::multi::length_data(parse_len);
     map_res(parse_label, |bytes: &[u8]| {
         String::from_utf8(bytes.to_vec())
-    })(i)
+    })
+    .parse(i)
 }

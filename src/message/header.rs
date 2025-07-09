@@ -1,6 +1,7 @@
 use crate::message::parser_utils::*;
 use bitvec::prelude::*;
 use nom::IResult;
+use nom::Parser;
 
 /// RFC 1035 defines DNS headers as 12 bytes long.
 const EXPECTED_SIZE_BYTES: usize = 12;
@@ -99,7 +100,7 @@ impl Header {
         // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
         let (i, id) = take_u16(i)?;
         let (i, qr) = take_bit(i)?;
-        let (i, opcode) = map_res(take_nibble, Opcode::try_from)(i)?;
+        let (i, opcode) = map_res(take_nibble, Opcode::try_from).parse(i)?;
         let (i, aa) = take_bit(i)?;
         let (i, tc) = take_bit(i)?;
         let (i, rd) = take_bit(i)?;
@@ -109,7 +110,7 @@ impl Header {
             (i, z) = take_bit(i)?;
             assert!(!z);
         }
-        let (i, rcode) = map_res(take_nibble, ResponseCode::try_from)(i)?;
+        let (i, rcode) = map_res(take_nibble, ResponseCode::try_from).parse(i)?;
         let (i, qdcount) = take_u16(i)?;
         let (i, ancount) = take_u16(i)?;
         let (i, nscount) = take_u16(i)?;
